@@ -196,8 +196,8 @@ public class ArkanoidGame {
 
     /**
      * Moves the paddle to the left.
-     * Called automatically by the framework when LEFT arrow is pressed.
-     * Mapped in sbge.ini: moveLeft = pressed LEFT
+     * Called automatically by the framework every frame while LEFT arrow is held.
+     * Mapped in sbge.ini: moveLeft = held LEFT
      */
     public void moveLeft() {
         paddle.moveLeft();
@@ -205,8 +205,8 @@ public class ArkanoidGame {
 
     /**
      * Moves the paddle to the right.
-     * Called automatically by the framework when RIGHT arrow is pressed.
-     * Mapped in sbge.ini: moveRight = pressed RIGHT
+     * Called automatically by the framework every frame while RIGHT arrow is held.
+     * Mapped in sbge.ini: moveRight = held RIGHT
      */
     public void moveRight() {
         paddle.moveRight();
