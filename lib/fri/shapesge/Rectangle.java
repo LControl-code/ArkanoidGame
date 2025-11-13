@@ -14,6 +14,10 @@ import java.awt.Color;
 @SuppressWarnings("unused")
 public class Rectangle {
     private final RectangularDrawable drawable;
+    private int x;
+    private int y;
+    private int width;
+    private int height;
 
     /**
      * Create a new rectangle at default position with default color.
@@ -32,7 +36,11 @@ public class Rectangle {
      */
     @SuppressWarnings("unused")
     public Rectangle(int x, int y) {
-        this.drawable = new RectangularDrawable(x, y, 30, 60, Color.red);
+        this.x = x;
+        this.y = y;
+        this.width = 30;
+        this.height = 60;
+        this.drawable = new RectangularDrawable(x, y, this.width, this.height, Color.red);
     }
 
     /**
@@ -108,6 +116,8 @@ public class Rectangle {
      */
     @SuppressWarnings("unused")
     public void changeSize(int newWidth, int newHeight) {
+        this.width = newWidth;
+        this.height = newHeight;
         this.drawable.changeSize(newWidth, newHeight);
     }
 
@@ -129,6 +139,8 @@ public class Rectangle {
      */
     @SuppressWarnings("unused")
     public void changePosition(int x, int y) {
+        this.x = x;
+        this.y = y;
         this.drawable.moveTo(x, y);
     }
 
@@ -138,7 +150,7 @@ public class Rectangle {
      */
     @SuppressWarnings("unused")
     public int getX() {
-        return this.drawable.getXPosition();
+        return this.x;
     }
 
     /**
@@ -147,7 +159,7 @@ public class Rectangle {
      */
     @SuppressWarnings("unused")
     public int getY() {
-        return this.drawable.getYPosition();
+        return this.y;
     }
 
     /**
@@ -156,7 +168,7 @@ public class Rectangle {
      */
     @SuppressWarnings("unused")
     public int getWidth() {
-        return this.drawable.getWidth();
+        return this.width;
     }
 
     /**
@@ -165,6 +177,6 @@ public class Rectangle {
      */
     @SuppressWarnings("unused")
     public int getHeight() {
-        return this.drawable.getHeight();
+        return this.height;
     }
 }
