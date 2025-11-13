@@ -14,8 +14,6 @@ public class Ball {
     private double velocityY;
     private final double speed = 3.0;
     private final int radius = 10;
-    private int x; // Track position internally
-    private int y;
 
     /**
      * Creates a new Ball at the specified starting position.
@@ -25,9 +23,7 @@ public class Ball {
      */
     public Ball(int startX, int startY) {
         shape = new Circle(radius * 2, radius * 2);
-        this.x = startX;
-        this.y = startY;
-        shape.changePosition(x, y);
+        shape.changePosition(startX, startY);
         shape.changeColor("white");
         velocityX = speed;
         velocityY = -speed;
@@ -38,9 +34,9 @@ public class Ball {
      * Should be called every game tick.
      */
     public void update() {
-        x += (int) velocityX;
-        y += (int) velocityY;
-        shape.changePosition(x, y);
+        int newX = shape.getX() + (int) velocityX;
+        int newY = shape.getY() + (int) velocityY;
+        shape.changePosition(newX, newY);
     }
 
     /**
@@ -49,7 +45,7 @@ public class Ball {
      * @return the x-coordinate
      */
     public int getX() {
-        return x;
+        return shape.getX();
     }
 
     /**
@@ -58,7 +54,7 @@ public class Ball {
      * @return the y-coordinate
      */
     public int getY() {
-        return y;
+        return shape.getY();
     }
 
     /**

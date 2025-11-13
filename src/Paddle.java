@@ -14,8 +14,6 @@ public class Paddle {
     private final int width = 150;
     private final int height = 12;
     private int canvasWidth;
-    private int x; // Track position internally
-    private int y;
 
     /**
      * Creates a new Paddle at the specified starting position.
@@ -26,9 +24,7 @@ public class Paddle {
      */
     public Paddle(int startX, int startY, int canvasWidth) {
         shape = new Rectangle(width, height);
-        this.x = startX;
-        this.y = startY;
-        shape.changePosition(x, y);
+        shape.changePosition(startX, startY);
         shape.changeColor("green");
         this.canvasWidth = canvasWidth;
     }
@@ -38,12 +34,13 @@ public class Paddle {
      * Prevents the paddle from moving past the left edge of the canvas.
      */
     public void moveLeft() {
-        if (x > 0) {
-            x -= speed;
-            if (x < 0) {
-                x = 0;
+        int currentX = shape.getX();
+        if (currentX > 0) {
+            int newX = currentX - speed;
+            if (newX < 0) {
+                newX = 0;
             }
-            shape.changePosition(x, y);
+            shape.changePosition(newX, shape.getY());
         }
     }
 
@@ -52,12 +49,13 @@ public class Paddle {
      * Prevents the paddle from moving past the right edge of the canvas.
      */
     public void moveRight() {
-        if (x + width < canvasWidth) {
-            x += speed;
-            if (x + width > canvasWidth) {
-                x = canvasWidth - width;
+        int currentX = shape.getX();
+        if (currentX + width < canvasWidth) {
+            int newX = currentX + speed;
+            if (newX + width > canvasWidth) {
+                newX = canvasWidth - width;
             }
-            shape.changePosition(x, y);
+            shape.changePosition(newX, shape.getY());
         }
     }
 
@@ -67,7 +65,7 @@ public class Paddle {
      * @return the x-coordinate
      */
     public int getX() {
-        return x;
+        return shape.getX();
     }
 
     /**
@@ -76,7 +74,7 @@ public class Paddle {
      * @return the y-coordinate
      */
     public int getY() {
-        return y;
+        return shape.getY();
     }
 
     /**
