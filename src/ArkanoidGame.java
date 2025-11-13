@@ -35,7 +35,7 @@ public class ArkanoidGame {
     public ArkanoidGame() {
         manager = new Manager();
 
-        // Note: Canvas size, background, and tick interval are configured in spge.ini
+        // Note: Canvas size, background, and tick interval are configured in sbge.ini
 
         // Initialize game objects
         initializeGameObjects();
@@ -195,43 +195,44 @@ public class ArkanoidGame {
     }
 
     /**
-     * Handles keyboard press events.
-     * Controls paddle movement, pause/resume, and restart.
-     *
-     * @param key the key that was pressed
+     * Moves the paddle to the left.
+     * Called automatically by the framework when LEFT arrow is pressed.
+     * Mapped in sbge.ini: moveLeft = pressed LEFT
      */
-    public void onKeyPress(String key) {
-        if (key.equals("left")) {
-            paddle.moveLeft();
-        } else if (key.equals("right")) {
-            paddle.moveRight();
-        } else if (key.equals("space")) {
-            if (currentState == GameState.PLAYING) {
-                currentState = GameState.PAUSED;
-                stateText.changeText("PAUSED");
-            } else if (currentState == GameState.PAUSED) {
-                currentState = GameState.PLAYING;
-                stateText.changeText("PLAYING");
-            }
-        } else if (key.equals("r")) {
-            // Restart game
-            restartGame();
+    public void moveLeft() {
+        paddle.moveLeft();
+    }
+
+    /**
+     * Moves the paddle to the right.
+     * Called automatically by the framework when RIGHT arrow is pressed.
+     * Mapped in sbge.ini: moveRight = pressed RIGHT
+     */
+    public void moveRight() {
+        paddle.moveRight();
+    }
+
+    /**
+     * Toggles pause state of the game.
+     * Called automatically by the framework when SPACE is pressed.
+     * Mapped in sbge.ini: pause = pressed SPACE
+     */
+    public void pause() {
+        if (currentState == GameState.PLAYING) {
+            currentState = GameState.PAUSED;
+            stateText.changeText("PAUSED");
+        } else if (currentState == GameState.PAUSED) {
+            currentState = GameState.PLAYING;
+            stateText.changeText("PLAYING");
         }
     }
 
     /**
-     * Handles keyboard release events.
-     *
-     * @param key the key that was released
-     */
-    public void onKeyRelease(String key) {
-        // Handle key releases if needed (currently not used)
-    }
-
-    /**
      * Restarts the game by resetting all game objects and state.
+     * Called automatically by the framework when R key is pressed.
+     * Mapped in sbge.ini: restart = pressed R
      */
-    private void restartGame() {
+    public void restart() {
         // Remove old objects
         ball.makeInvisible();
         paddle.makeInvisible();
