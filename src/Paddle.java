@@ -11,8 +11,8 @@ public class Paddle {
     // Fields
     private Rectangle shape;
     private final int speed = 8;
-    private final int width = 100;
-    private final int height = 20;
+    private final int width = 150;
+    private final int height = 12;
     private int canvasWidth;
     private int x; // Track position internally
     private int y;

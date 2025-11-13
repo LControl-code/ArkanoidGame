@@ -12,7 +12,7 @@ public class Brick {
     private Rectangle shape;
     private boolean visible;
     private final int width = 60;
-    private final int height = 20;
+    private final int height = 12;
     private int x; // Track position internally
     private int y;
 
