@@ -13,8 +13,6 @@ public class Brick {
     private boolean visible;
     private final int width = 60;
     private final int height = 12;
-    private int x; // Track position internally
-    private int y;
 
     /**
      * Creates a new Brick at the specified position.
@@ -24,8 +22,6 @@ public class Brick {
      */
     public Brick(int x, int y) {
         shape = new Rectangle(width, height);
-        this.x = x;
-        this.y = y;
         shape.changePosition(x, y);
         shape.changeColor("red");
         visible = true;
@@ -45,7 +41,7 @@ public class Brick {
      * @return the x-coordinate
      */
     public int getX() {
-        return x;
+        return shape.getX();
     }
 
     /**
@@ -54,7 +50,7 @@ public class Brick {
      * @return the y-coordinate
      */
     public int getY() {
-        return y;
+        return shape.getY();
     }
 
     /**
