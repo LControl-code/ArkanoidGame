@@ -118,10 +118,26 @@ public class ArkanoidGame {
      * Checks for all collisions (ball-paddle, ball-wall, ball-brick).
      */
     private void checkCollisions() {
-        // Ball-paddle collision
-        if (Collision.circleRectsCollide(ball.getX(), ball.getY(), ball.getRadius(),
-                                         paddle.getX(), paddle.getY(), paddle.getWidth(), paddle.getHeight())) {
-            ball.reverseVertical();
+        // Ball-paddle collision using swept collision detection
+        Collision.SweptCollisionResult paddleCollision = Collision.sweptCircleRect(
+            ball.getPreviousX(), ball.getPreviousY(),
+            ball.getX(), ball.getY(),
+            ball.getRadius(),
+            paddle.getX(), paddle.getY(), paddle.getWidth(), paddle.getHeight()
+        );
+
+        if (paddleCollision.collided) {
+            // Position ball at collision point
+            ball.setPosition(paddleCollision.collisionX, paddleCollision.collisionY);
+
+            // Bounce based on which edge was hit
+            if (paddleCollision.edge == Collision.CollisionEdge.TOP ||
+                paddleCollision.edge == Collision.CollisionEdge.BOTTOM) {
+                ball.reverseVertical();
+            } else if (paddleCollision.edge == Collision.CollisionEdge.LEFT ||
+                       paddleCollision.edge == Collision.CollisionEdge.RIGHT) {
+                ball.reverseHorizontal();
+            }
         }
 
         // Ball-wall collisions
@@ -140,22 +156,54 @@ public class ArkanoidGame {
     /**
      * Checks for collisions between the ball and all visible bricks.
      * Destroys bricks on collision and updates the score.
+     * Uses swept collision detection to determine exact collision point and which edge was hit.
      */
     private void checkBrickCollisions() {
+        Collision.SweptCollisionResult earliestCollision = null;
+        Brick hitBrick = null;
+
+        // Find the earliest collision among all bricks
         for (int row = 0; row < brickGrid.getRows(); row++) {
             for (int col = 0; col < brickGrid.getCols(); col++) {
                 Brick brick = brickGrid.getBrick(row, col);
 
-                if (brick.isVisible() &&
-                    Collision.circleRectsCollide(ball.getX(), ball.getY(), ball.getRadius(),
-                                                 brick.getX(), brick.getY(), brick.getWidth(), brick.getHeight())) {
-                    brick.destroy();
-                    ball.reverseVertical(); // Simplified - always bounce down
-                    score += 10;
-                    updateScoreDisplay();
-                    break; // Only break one brick per tick
+                if (brick.isVisible()) {
+                    Collision.SweptCollisionResult collision = Collision.sweptCircleRect(
+                        ball.getPreviousX(), ball.getPreviousY(),
+                        ball.getX(), ball.getY(),
+                        ball.getRadius(),
+                        brick.getX(), brick.getY(), brick.getWidth(), brick.getHeight()
+                    );
+
+                    // Keep track of the earliest collision
+                    if (collision.collided) {
+                        if (earliestCollision == null || collision.collisionTime < earliestCollision.collisionTime) {
+                            earliestCollision = collision;
+                            hitBrick = brick;
+                        }
+                    }
                 }
             }
+        }
+
+        // Handle the earliest collision
+        if (earliestCollision != null && hitBrick != null) {
+            // Position ball at collision point
+            ball.setPosition(earliestCollision.collisionX, earliestCollision.collisionY);
+
+            // Bounce based on which edge was hit
+            if (earliestCollision.edge == Collision.CollisionEdge.TOP ||
+                earliestCollision.edge == Collision.CollisionEdge.BOTTOM) {
+                ball.reverseVertical();
+            } else if (earliestCollision.edge == Collision.CollisionEdge.LEFT ||
+                       earliestCollision.edge == Collision.CollisionEdge.RIGHT) {
+                ball.reverseHorizontal();
+            }
+
+            // Destroy the brick and update score
+            hitBrick.destroy();
+            score += 10;
+            updateScoreDisplay();
         }
     }
 

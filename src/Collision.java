@@ -8,6 +8,37 @@
 public class Collision {
 
     /**
+     * Represents the result of a swept collision detection.
+     * Contains information about where and when a collision occurred.
+     */
+    public static class SweptCollisionResult {
+        public final boolean collided;
+        public final double collisionTime; // 0.0 to 1.0 along the path
+        public final int collisionX;       // Exact collision point
+        public final int collisionY;
+        public final CollisionEdge edge;   // Which edge was hit
+
+        public SweptCollisionResult(boolean collided, double time, int x, int y, CollisionEdge edge) {
+            this.collided = collided;
+            this.collisionTime = time;
+            this.collisionX = x;
+            this.collisionY = y;
+            this.edge = edge;
+        }
+
+        public static SweptCollisionResult noCollision() {
+            return new SweptCollisionResult(false, 1.0, 0, 0, CollisionEdge.NONE);
+        }
+    }
+
+    /**
+     * Represents which edge of a rectangle was hit during collision.
+     */
+    public enum CollisionEdge {
+        NONE, TOP, BOTTOM, LEFT, RIGHT
+    }
+
+    /**
      * Checks if two rectangles collide using axis-aligned bounding box (AABB) collision detection.
      *
      * @param x1 the x-coordinate of the first rectangle's top-left corner
@@ -99,5 +130,123 @@ public class Collision {
      */
     public static boolean hitsBottomWall(int ballY, int ballRadius, int canvasHeight) {
         return ballY + ballRadius >= canvasHeight;
+    }
+
+    /**
+     * Performs swept collision detection between a moving circle and a rectangle.
+     * This method traces the path of the circle from its previous position to its current position
+     * and determines if and when it collides with the rectangle.
+     *
+     * Algorithm:
+     * 1. Expand the rectangle by the circle's radius in all directions
+     * 2. Treat the circle as a point moving along a line segment
+     * 3. Test if the line segment intersects the expanded rectangle
+     * 4. Find which edge is hit first and at what time (0.0 to 1.0 along the path)
+     *
+     * @param prevX the previous x-coordinate of the circle's center
+     * @param prevY the previous y-coordinate of the circle's center
+     * @param currX the current x-coordinate of the circle's center
+     * @param currY the current y-coordinate of the circle's center
+     * @param radius the radius of the circle
+     * @param rectX the x-coordinate of the rectangle's top-left corner
+     * @param rectY the y-coordinate of the rectangle's top-left corner
+     * @param rectW the width of the rectangle
+     * @param rectH the height of the rectangle
+     * @return SweptCollisionResult containing collision information
+     */
+    public static SweptCollisionResult sweptCircleRect(int prevX, int prevY, int currX, int currY, int radius,
+                                                       int rectX, int rectY, int rectW, int rectH) {
+        // Calculate movement delta
+        double deltaX = currX - prevX;
+        double deltaY = currY - prevY;
+
+        // If no movement, use standard collision detection
+        if (deltaX == 0 && deltaY == 0) {
+            boolean collides = circleRectsCollide(currX, currY, radius, rectX, rectY, rectW, rectH);
+            return collides ? new SweptCollisionResult(true, 0.0, currX, currY, CollisionEdge.NONE) :
+                            SweptCollisionResult.noCollision();
+        }
+
+        // Expand the rectangle by the circle's radius (Minkowski sum)
+        int expandedX = rectX - radius;
+        int expandedY = rectY - radius;
+        int expandedW = rectW + radius * 2;
+        int expandedH = rectH + radius * 2;
+
+        // Test ray (line segment) against expanded rectangle
+        // We need to find the time of intersection for each edge
+
+        double entryTimeX, exitTimeX;
+        double entryTimeY, exitTimeY;
+
+        // Calculate intersection times with vertical edges (left and right)
+        if (deltaX > 0) {
+            // Moving right: check left edge entry, right edge exit
+            entryTimeX = (expandedX - prevX) / deltaX;
+            exitTimeX = (expandedX + expandedW - prevX) / deltaX;
+        } else if (deltaX < 0) {
+            // Moving left: check right edge entry, left edge exit
+            entryTimeX = (expandedX + expandedW - prevX) / deltaX;
+            exitTimeX = (expandedX - prevX) / deltaX;
+        } else {
+            // No horizontal movement
+            entryTimeX = Double.NEGATIVE_INFINITY;
+            exitTimeX = Double.POSITIVE_INFINITY;
+        }
+
+        // Calculate intersection times with horizontal edges (top and bottom)
+        if (deltaY > 0) {
+            // Moving down: check top edge entry, bottom edge exit
+            entryTimeY = (expandedY - prevY) / deltaY;
+            exitTimeY = (expandedY + expandedH - prevY) / deltaY;
+        } else if (deltaY < 0) {
+            // Moving up: check bottom edge entry, top edge exit
+            entryTimeY = (expandedY + expandedH - prevY) / deltaY;
+            exitTimeY = (expandedY - prevY) / deltaY;
+        } else {
+            // No vertical movement
+            entryTimeY = Double.NEGATIVE_INFINITY;
+            exitTimeY = Double.POSITIVE_INFINITY;
+        }
+
+        // Find the latest entry time and earliest exit time
+        double entryTime = Math.max(entryTimeX, entryTimeY);
+        double exitTime = Math.min(exitTimeX, exitTimeY);
+
+        // Check if there's a collision
+        // No collision if:
+        // - Entry time is after exit time (never overlapped)
+        // - Collision is completely behind us (exitTime < 0)
+        // - Collision is completely ahead of our movement (entryTime > 1)
+        if (entryTime > exitTime || exitTime < 0 || entryTime > 1) {
+            return SweptCollisionResult.noCollision();
+        }
+
+        // Clamp entry time to [0, 1] range
+        entryTime = Math.max(0, entryTime);
+
+        // Determine which edge was hit
+        CollisionEdge edge;
+        if (entryTimeX > entryTimeY) {
+            // Hit vertical edge (left or right)
+            if (deltaX > 0) {
+                edge = CollisionEdge.LEFT; // Hit left edge of rectangle
+            } else {
+                edge = CollisionEdge.RIGHT; // Hit right edge of rectangle
+            }
+        } else {
+            // Hit horizontal edge (top or bottom)
+            if (deltaY > 0) {
+                edge = CollisionEdge.TOP; // Hit top edge of rectangle
+            } else {
+                edge = CollisionEdge.BOTTOM; // Hit bottom edge of rectangle
+            }
+        }
+
+        // Calculate exact collision point
+        int collisionX = (int)(prevX + deltaX * entryTime);
+        int collisionY = (int)(prevY + deltaY * entryTime);
+
+        return new SweptCollisionResult(true, entryTime, collisionX, collisionY, edge);
     }
 }

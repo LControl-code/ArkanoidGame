@@ -14,6 +14,8 @@ public class Ball {
     private double velocityY;
     private final double speed = 3.0;
     private final int radius = 10;
+    private int previousX;
+    private int previousY;
 
     /**
      * Creates a new Ball at the specified starting position.
@@ -27,6 +29,8 @@ public class Ball {
         shape.changeColor("white");
         velocityX = speed;
         velocityY = -speed;
+        previousX = startX;
+        previousY = startY;
     }
 
     /**
@@ -34,6 +38,10 @@ public class Ball {
      * Should be called every game tick.
      */
     public void update() {
+        // Store previous position for swept collision detection
+        previousX = shape.getX();
+        previousY = shape.getY();
+
         int newX = shape.getX() + (int) velocityX;
         int newY = shape.getY() + (int) velocityY;
         shape.changePosition(newX, newY);
@@ -76,6 +84,24 @@ public class Ball {
     }
 
     /**
+     * Gets the previous x-coordinate of the ball's center.
+     *
+     * @return the previous x-coordinate
+     */
+    public int getPreviousX() {
+        return previousX;
+    }
+
+    /**
+     * Gets the previous y-coordinate of the ball's center.
+     *
+     * @return the previous y-coordinate
+     */
+    public int getPreviousY() {
+        return previousY;
+    }
+
+    /**
      * Reverses the ball's horizontal velocity (makes it bounce left/right).
      */
     public void reverseHorizontal() {
@@ -101,5 +127,16 @@ public class Ball {
      */
     public void makeInvisible() {
         shape.makeInvisible();
+    }
+
+    /**
+     * Sets the ball's position to specific coordinates.
+     * Used for repositioning after collision detection.
+     *
+     * @param x the new x-coordinate of the ball's center
+     * @param y the new y-coordinate of the ball's center
+     */
+    public void setPosition(int x, int y) {
+        shape.changePosition(x, y);
     }
 }

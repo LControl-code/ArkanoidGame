@@ -15,6 +15,9 @@ import java.awt.Color;
 @SuppressWarnings("unused")
 public class Circle {
     private final EllipticalDrawable drawable;
+    private int x;
+    private int y;
+    private int diameter;
 
     /**
      * Create a new circle at default position with default color.
@@ -33,6 +36,9 @@ public class Circle {
      */
     @SuppressWarnings("unused")
     public Circle(int x, int y) {
+        this.x = x;
+        this.y = y;
+        this.diameter = 30;
         this.drawable = new EllipticalDrawable(x, y, 30, 30, Color.blue);
     }
 
@@ -108,6 +114,7 @@ public class Circle {
      */
     @SuppressWarnings("unused")
     public void changeSize(int newDiameter) {
+        this.diameter = newDiameter;
         this.drawable.changeSize(newDiameter, newDiameter);
     }
 
@@ -129,6 +136,8 @@ public class Circle {
      */
     @SuppressWarnings("unused")
     public void changePosition(int x, int y) {
+        this.x = x;
+        this.y = y;
         this.drawable.moveTo(x, y);
     }
 
@@ -138,7 +147,7 @@ public class Circle {
      */
     @SuppressWarnings("unused")
     public int getX() {
-        return this.drawable.getXPosition();
+        return this.x;
     }
 
     /**
@@ -147,7 +156,7 @@ public class Circle {
      */
     @SuppressWarnings("unused")
     public int getY() {
-        return this.drawable.getYPosition();
+        return this.y;
     }
 
     /**
@@ -156,6 +165,6 @@ public class Circle {
      */
     @SuppressWarnings("unused")
     public int getDiameter() {
-        return this.drawable.getDiameterX();
+        return this.diameter;
     }
 }
